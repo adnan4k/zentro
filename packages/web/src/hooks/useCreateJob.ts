@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { API_BASE } from '@/lib/api';
 
 export function isValidUrl(value: string): boolean {
   if (!value) return false;
@@ -28,7 +29,7 @@ export function useCreateJob() {
     setError('');
 
     try {
-      const res = await fetch('/api/jobs', {
+      const res = await fetch(`${API_BASE}/api/jobs`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, style, duration }),
@@ -40,7 +41,7 @@ export function useCreateJob() {
       }
 
       const { id } = await res.json();
-      router.push(`/jobs/${id}`);
+      router.push(`/jobs?id=${id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       setIsSubmitting(false);
