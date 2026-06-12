@@ -37,7 +37,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, jobId }) => 
   return (
     <div className="w-full">
       {/* Video container */}
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-white/10 bg-black shadow-2xl shadow-black/50 group">
+      <div className="relative aspect-video w-full overflow-hidden rounded-card border border-warm-200/50 bg-black shadow-card group">
         <video
           ref={videoRef}
           src={videoUrl}
@@ -54,7 +54,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, jobId }) => 
           <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity duration-300 group-hover:opacity-100">
             <button
               onClick={handlePlay}
-              className="flex h-20 w-20 items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white transition-all duration-300 hover:bg-white/20 hover:scale-110 hover:shadow-lg hover:shadow-white/10"
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-warm-400/95 text-white shadow-xl backdrop-blur-sm transition-all duration-300 hover:bg-warm-500 hover:scale-110"
             >
               <svg className="ml-1.5 h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
@@ -69,7 +69,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, jobId }) => 
         <div className="flex items-center gap-3">
           <button
             onClick={isPlaying ? handlePause : handlePlay}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 border border-white/10 text-white/80 transition-all hover:bg-white/10 hover:text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-btn border border-warm-200 bg-white text-warm-400 transition-all hover:bg-warm-50 hover:text-warm-500"
           >
             {isPlaying ? (
               <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -81,12 +81,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, jobId }) => 
               </svg>
             )}
           </button>
-          <span className="text-sm text-white/40">HD 1080p · MP4</span>
+          <span className="text-sm text-warm-300">HD 1080p · MP4</span>
         </div>
 
         <button
           onClick={handleDownload}
-          className="flex items-center gap-2 rounded-lg bg-[#F5DD9D] px-5 py-2.5 text-sm font-medium text-[#1a2325] transition-all hover:bg-[#F5DD9D]/80 hover:shadow-lg hover:shadow-[#F5DD9D]/25 active:scale-95"
+          className="flex items-center gap-2 rounded-btn bg-warm-400 px-5 py-2.5 text-sm font-semibold text-white shadow-btn transition-all hover:bg-warm-500 hover:shadow-card-hover active:scale-95"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
