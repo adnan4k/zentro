@@ -1,0 +1,24 @@
+{
+  "name": "@zentro/worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.200",
+    "@remotion/renderer": "^4.0.200",
+    "bullmq": "^5.7.0",
+    "dotenv": "^16.4.0",
+    "ioredis": "^5.4.0",
+    "playwright": "^1.44.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.8",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0"
+  }
+}

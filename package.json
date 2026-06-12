@@ -1,0 +1,21 @@
+{
+  "name": "zentro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zentro — Convert any website URL into a cinematic marketing demo video",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w packages/api",
+    "dev:worker": "npm run dev -w packages/worker",
+    "dev:web": "npm run dev -w packages/web",
+    "dev:all": "concurrently -n api,worker,web -c blue,green,magenta \"npm run dev:api\" \"npm run dev:worker\" \"npm run dev:web\"",
+    "build": "npm run build -w packages/api && npm run build -w packages/worker && npm run build -w packages/web",
+    "clean": "rm -rf packages/*/dist packages/*/.next data"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.0"
+  }
+}
