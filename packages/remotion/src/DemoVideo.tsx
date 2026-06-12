@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Sequence, Audio, useVideoConfig } from 'remotion';
+import { AbsoluteFill, Sequence, Audio, useVideoConfig, staticFile } from 'remotion';
 import { SceneRenderer } from './components/SceneRenderer';
 
 interface Scene {

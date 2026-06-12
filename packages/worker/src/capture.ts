@@ -119,7 +119,26 @@ export async function captureWebsite(
     onProgress(60);
 
     // Detect sections using the rule-based planner
-    const sections = detectSections(candidates);
+    let sections = detectSections(candidates);
+
+    // Fallback: if no sections detected, capture the full page as one scene
+    if (sections.length === 0) {
+      console.log('[Capture] No sections detected — falling back to single full-page screenshot');
+      const pageText = await page.evaluate(() => {
+        return document.body?.innerText?.substring(0, 200) || '';
+      });
+      sections = [
+        {
+          selector: 'body',
+          sectionType: 'hero' as const,
+          scrollY: 0,
+          viewportHeight: SCREENSHOT_HEIGHT,
+          textContent: pageText || url,
+          boundingHeight: SCREENSHOT_HEIGHT,
+        },
+      ];
+    }
+
     console.log(
       `[Capture] Detected ${sections.length} sections: ${sections
         .map((s) => s.sectionType)

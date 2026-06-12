@@ -18,6 +18,16 @@ const STORAGE_DIR = path.resolve(process.env.STORAGE_DIR || './data');
 const MUSIC_DIR = path.resolve(process.env.MUSIC_DIR || './assets/music');
 const SCREENSHOT_DIR = path.join(STORAGE_DIR, 'jobs');
 
+// Simple per-job write lock to prevent concurrent JSON corruption
+const writeLocks = new Map<string, Promise<void>>();
+
+function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = writeLocks.get(key) || Promise.resolve();
+  const next = prev.then(fn, fn); // run fn even if previous rejected
+  writeLocks.set(key, next.then(() => {}, () => {})); // clear when done
+  return next;
+}
+
 async function updateJobProgress(
   job: BullJob,
   jobId: string,
@@ -30,14 +40,19 @@ async function updateJobProgress(
 
   await job.updateProgress(progress);
 
-  try {
-    const raw = await fs.readFile(jobJsonPath, 'utf-8');
-    const data: JobData = JSON.parse(raw);
-    const updated: JobData = { ...data, ...extra, status, progress };
-    await fs.writeFile(jobJsonPath, JSON.stringify(updated, null, 2), 'utf-8');
-  } catch {
-    // If file doesn't exist yet, skip — the API will have created it
-  }
+  await withLock(jobId, async () => {
+    try {
+      const raw = await fs.readFile(jobJsonPath, 'utf-8');
+      const data: JobData = JSON.parse(raw);
+      const updated: JobData = { ...data, ...extra, status, progress };
+      // Atomic write: write to temp file then rename
+      const tmpPath = jobJsonPath + '.tmp';
+      await fs.writeFile(tmpPath, JSON.stringify(updated, null, 2), 'utf-8');
+      await fs.rename(tmpPath, jobJsonPath);
+    } catch {
+      // If file doesn't exist yet, skip — the API will have created it
+    }
+  });
 }
 
 async function processJob(job: BullJob): Promise<void> {

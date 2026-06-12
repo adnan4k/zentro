@@ -3,8 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --foreground: #ffffff;
-  --background: #0a0a14;
+  --foreground: #fbf0d5;
+  --background: #1a2325;
+  --accent: #F5DD9D;
+  --accent-mid: #92A68A;
+  --accent-dark: #506266;
 }
 
 body {
@@ -21,25 +24,122 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(245, 221, 157, 0.15);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(245, 221, 157, 0.3);
 }
 
 /* Gradient text utility */
 .gradient-text {
-  background: linear-gradient(135deg, #9d9dff 0%, #5a5aff 50%, #7c7cff 100%);
+  background: linear-gradient(135deg, #F5DD9D 0%, #BCC499 40%, #92A68A 100%);
+  background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  animation: gradientShift 4s ease-in-out infinite;
 }
 
 /* Glass card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(80, 98, 102, 0.15);
+  border: 1px solid rgba(245, 221, 157, 0.08);
   backdrop-filter: blur(20px);
   border-radius: 16px;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.glass-card:hover {
+  background: rgba(80, 98, 102, 0.22);
+  border-color: rgba(245, 221, 157, 0.15);
+  box-shadow: 0 4px 24px rgba(245, 221, 157, 0.06);
+}
+
+/* ===== Keyframes ===== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -50px) scale(1.08);
+  }
+  50% {
+    transform: translate(-20px, -30px) scale(0.95);
+  }
+  75% {
+    transform: translate(-40px, 20px) scale(1.05);
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-40px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(30px, 40px) scale(0.92);
+  }
+}
+
+@keyframes floatSlower {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -60px) scale(1.12);
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ===== Utility classes ===== */
+
+.animate-fade-in-up {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.gradient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform;
+  pointer-events: none;
 }

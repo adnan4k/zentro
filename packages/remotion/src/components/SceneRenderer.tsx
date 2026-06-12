@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentFrame, useVideoConfig, Img, AbsoluteFill } from 'remotion';
+import { useCurrentFrame, useVideoConfig, Img, AbsoluteFill, staticFile } from 'remotion';
 import { getAnimationFn } from '../animations/presets';
 
 interface SceneRendererProps {
@@ -23,6 +23,9 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
   const animationFn = getAnimationFn(animationType);
   const { transform, opacity } = animationFn(frame, durationInFrames, animationIntensity);
 
+  // Resolve screenshot path via Remotion's staticFile helper
+  const resolvedSrc = staticFile(screenshotPath);
+
   return (
     <AbsoluteFill
       style={{
@@ -35,7 +38,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
     >
       {/* Background blur layer for depth */}
       <Img
-        src={screenshotPath}
+        src={resolvedSrc}
         style={{
           position: 'absolute',
           width: '110%',
@@ -61,7 +64,7 @@ export const SceneRenderer: React.FC<SceneRendererProps> = ({
         }}
       >
         <Img
-          src={screenshotPath}
+          src={resolvedSrc}
           style={{
             width: '100%',
             height: '100%',

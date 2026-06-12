@@ -1,5 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
+import { bundle } from '@remotion/bundler';
+import { renderMedia, selectComposition } from '@remotion/renderer';
 import type { Scene } from '../../api/src/types';
 
 const FPS = 30;
@@ -41,7 +43,7 @@ export async function renderVideo(
 
   onProgress(10);
 
-  // Write input props to a JSON file so the Remotion project can read them
+  // Write input props to a JSON file
   const propsPath = path.join(outputDir, 'input-props.json');
   await fs.writeFile(propsPath, JSON.stringify(inputProps, null, 2));
   console.log(`[Render] Input props written to ${propsPath}`);
@@ -51,10 +53,32 @@ export async function renderVideo(
 
   onProgress(20);
 
-  // Attempt to render using @remotion/renderer if available
   try {
-    const { bundle } = require('@remotion/bundler');
-    const { renderMedia, selectComposition } = require('@remotion/renderer');
+    // Copy screenshots to Remotion's public/ folder so <Img> can load them
+    const publicDir = path.resolve(__dirname, '../../remotion/public');
+    const screenshotsPublicDir = path.join(publicDir, 'screenshots');
+    await fs.mkdir(screenshotsPublicDir, { recursive: true });
+
+    // Copy screenshots and transform paths to public/-relative
+    const publicScenes = [];
+    for (const scene of scenes) {
+      const filename = path.basename(scene.screenshotPath);
+      const srcPath = scene.screenshotPath;
+      const dstPath = path.join(screenshotsPublicDir, filename);
+      try {
+        await fs.copyFile(srcPath, dstPath);
+      } catch {
+        console.warn(`[Render] Could not copy screenshot: ${srcPath}`);
+      }
+      publicScenes.push({
+        ...scene,
+        screenshotPath: `screenshots/${filename}`, // relative to public/
+      });
+    }
+    console.log(`[Render] Copied ${scenes.length} screenshots to public/`);
+
+    // Update inputProps with public-relative paths
+    inputProps.scenes = publicScenes;
 
     const entryPoint = path.join(remotionSrcDir, 'index.ts');
     console.log(`[Render] Bundling Remotion project from ${entryPoint}...`);
@@ -62,6 +86,7 @@ export async function renderVideo(
     const bundleLocation = await bundle({
       entryPoint,
       webpackOverride: (config: any) => config,
+      publicDir,
     });
 
     onProgress(40);
@@ -74,7 +99,7 @@ export async function renderVideo(
     });
 
     onProgress(50);
-    console.log(`[Render] Composition selected: ${composition.id} (${composition.durationInFrames} frames)`);
+    console.log(`[Render] Composition: ${composition.id} (${composition.durationInFrames} frames)`);
 
     await renderMedia({
       composition,
@@ -83,71 +108,19 @@ export async function renderVideo(
       outputLocation: outputPath,
       inputProps,
       onProgress: ({ progress }: { progress: number }) => {
-        // Map Remotion render progress (0–1) to our progress (50–95)
         const ourProgress = 50 + Math.round(progress * 45);
         onProgress(ourProgress);
       },
     });
 
-    onProgress(95);
-    console.log(`[Render] Video rendered to ${outputPath}`);
+    onProgress(100);
+    const stat = await fs.stat(outputPath);
+    console.log(`[Render] Video rendered: ${outputPath} (${(stat.size / 1024 / 1024).toFixed(1)} MB)`);
     return outputPath;
   } catch (err) {
-    // If @remotion/renderer is not available, generate a placeholder
-    console.warn(
-      `[Render] @remotion/renderer not available, generating placeholder: ${(err as Error).message}`
-    );
-    return await generatePlaceholderVideo(outputPath, inputProps, onProgress);
+    const msg = (err as Error).message || String(err);
+    console.error(`[Render] Remotion render failed: ${msg}`);
+    // Re-throw so the worker marks the job as failed
+    throw new Error(`Render failed: ${msg}`);
   }
-}
-
-/**
- * Generate a placeholder MP4 when Remotion renderer is unavailable.
- * Creates a minimal valid MP4 using raw bytes (works for development/testing).
- * In production, Remotion renderer with Chrome must be installed.
- */
-async function generatePlaceholderVideo(
-  outputPath: string,
-  inputProps: RenderInput,
-  onProgress: (pct: number) => void
-): Promise<string> {
-  onProgress(40);
-  console.log('[Render] Generating placeholder video...');
-
-  // Write a summary text file alongside
-  const summaryPath = outputPath.replace('.mp4', '.txt');
-  const summary = `Zentro Video Render — Placeholder
-=====================================
-Scenes: ${inputProps.scenes.length}
-Duration: ${inputProps.durationInFrames / inputProps.fps}s (${inputProps.durationInFrames} frames)
-Resolution: ${inputProps.width}x${inputProps.height}
-FPS: ${inputProps.fps}
-Music: ${inputProps.musicPath || 'none'}
-
-Scenes:
-${inputProps.scenes
-  .map(
-    (s) =>
-      `  [${s.startTime}s–${s.endTime}s] ${s.sectionType} — ${s.animation.type} — ${s.metadata.textContent.substring(0, 80)}`
-  )
-  .join('\n')}
-
-NOTE: This is a placeholder. To render actual MP4 video, install:
-  @remotion/renderer and ensure Chrome is available on the system.
-`;
-
-  await fs.writeFile(summaryPath, summary, 'utf-8');
-  console.log(`[Render] Placeholder summary written to ${summaryPath}`);
-
-  // Create a minimal valid MP4 file (the smallest possible mp4 container)
-  // This is a tiny valid mp4 so the pipeline doesn't break
-  const minimalMp4 = Buffer.from(
-    '00000018667479706d703432000000006d70343269736f6d00000008667265650000000000',
-    'hex'
-  );
-
-  await fs.writeFile(outputPath, minimalMp4);
-  onProgress(100);
-  console.log(`[Render] Placeholder MP4 written to ${outputPath}`);
-  return outputPath;
 }

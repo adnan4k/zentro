@@ -27,18 +27,18 @@ export const UrlInput: React.FC<UrlInputProps> = ({
 
   return (
     <div className="w-full">
-      <label className="mb-2 block text-sm font-medium text-white/60">
+      <label className="mb-2 block text-sm font-medium text-[#fbf0d5]/60">
         Website URL
       </label>
       <div
         className={`flex items-center gap-3 rounded-xl border px-5 py-4 transition-all duration-300 ${
           isFocused
-            ? 'border-[#5a5aff] bg-white/[0.06] shadow-lg shadow-[#5a5aff]/10'
-            : 'border-white/10 bg-white/[0.02]'
+            ? 'border-[#F5DD9D] bg-[#F5DD9D]/[0.06] shadow-lg shadow-[#F5DD9D]/10'
+            : 'border-[#F5DD9D]/10 bg-[#F5DD9D]/[0.02]'
         } ${!isValid && value ? 'border-red-500/50' : ''}`}
       >
         <svg
-          className={`h-5 w-5 flex-shrink-0 ${value ? 'text-[#5a5aff]' : 'text-white/20'}`}
+          className={`h-5 w-5 flex-shrink-0 ${value ? 'text-[#F5DD9D]' : 'text-[#F5DD9D]/20'}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -58,7 +58,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({
           onBlur={() => setIsFocused(false)}
           onKeyDown={handleKeyDown}
           placeholder="https://example.com"
-          className="flex-1 bg-transparent text-lg text-white placeholder-white/20 outline-none"
+          className="flex-1 bg-transparent text-lg text-[#fbf0d5] placeholder-[#fbf0d5]/20 outline-none"
           autoComplete="url"
           disabled={isSubmitting}
         />
